@@ -14,6 +14,30 @@ describe Article do
     @articles = []
   end
 
+####################HW5##############################
+  it "should merge two good articles without error" do
+    article = Article.create!(:title => "blah blah", :author => "blah blah blah", :body => "")
+    article2 = Article.create!(:title => "blah blah", :author => "blah blah blah", :body => '<p>Hey Yo<p>')
+    
+    article.merge_with article2
+    
+    article = Article.find(article.id)
+    
+    assert_equal article.body, article2.body
+
+  end
+
+  it "should delete the secondary article without error" do
+    article = Article.create!(:title => "blah blah", :author => "blah blah blah", :body => "")
+    article2 = Article.create!(:title => "blah blah", :author => "blah blah blah", :body => '<p>Hey Yo<p>')
+    
+    article.merge_with article2
+
+    assert_equal nil, Article.find_by_id(article2.id)
+
+  end
+####################HW5##############################
+
   def assert_results_are(*expected)
     assert_equal expected.size, @articles.size
     expected.each do |i|

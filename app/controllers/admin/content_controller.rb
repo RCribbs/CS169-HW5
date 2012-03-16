@@ -27,8 +27,45 @@ class Admin::ContentController < Admin::BaseController
     new_or_edit
   end
 
+  def merge
+    if not current_user.admin?
+        flash[:error] = "You do not have the proper privileges to perform that action."
+        redirect_to '/'
+        return
+    end
+    if params[:merge_id] == params[:id]
+        flash[:error] = "The article to merge with cannot be the same as the current article."
+        redirect_to '/admin/content'
+        return
+    end
+    merger = Article.find_by_id(params[:id])
+    if merger.blank?
+        flash[:error] = "The article ID: '#{params[:id]}' for the merging article is invalid, please try again."
+        redirect_to '/admin/content'
+        return
+    end
+    if not merger[/[^0-9]/].nil?
+        flash[:error] = "The article ID: '#{params[:merge_id]}' is not a proper ID."
+        redirect_to '/admin/content'
+        return
+    end
+    if Article.find_by_id(params[:merge_id]).blank?
+        flash[:error] = "The article ID: '#{params[:merge_id]}' could not be found!"
+        redirect_to '/admin/content'
+        return
+    end
+    if merger.merge_with(params[:merge_id])
+        redirect_to '/admin/content'
+        flash[:notice] = "Article '#{params[:merge_id]}' merged with '#{params[:id]}'"
+    else
+        redirect_to '/admin/content'
+        flash[:error] = "Something unexpected happened: article has failed to be merged."
+    end
+  end
+
   def edit
     @article = Article.find(params[:id])
+    @article_id = nil
     unless @article.access_by? current_user
       redirect_to :action => 'index'
       flash[:error] = _("Error, you are not allowed to perform this action")

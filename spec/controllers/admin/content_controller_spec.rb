@@ -3,6 +3,43 @@ require 'spec_helper'
 describe Admin::ContentController do
   render_views
 
+
+####################HW5##############################
+  it "should let an admin perform a merge" do
+    #Blog.create(:blog_name => "Test Blog")
+    Factory(:blog)
+    normalUser = stub_model(User, :settings => {:editor => 'simple'}, :admin? => false,
+                       :text_filter_name => "", :profile_label => "admin",
+                       :profile_id => 2, :name => 'steve')
+    adminUser = stub_model(User, :settings => {:editor => 'simple'}, :admin? => true,
+                       :text_filter_name => "", :profile_label => "admin",
+                       :profile_id => 1, :name => 'john', :profile => Factory(:profile_admin, :label => Profile::ADMIN))
+    article = Article.create!(:title => "blah blah", :author => 'john', :body => "")
+    article2 = Article.create!(:title => "blah blah", :author => 'steve', :body => '<p>Hey Yo<p>')
+    controller.stub!(:current_user).and_return(adminUser)
+    get 'merge', {:id => article.id, :merge_id => article2.id}
+    article = Article.find(article.id)
+    assert_equal(article2.body, article.body)
+    assert_equal(nil, Article.find_by_id(article2.id))
+  end
+
+  it "should not let a non-admin perform a merge" do
+    #Blog.create(:blog_name => "Test Blog")
+    Factory(:blog)
+    normalUser = stub_model(User, :settings => {:editor => 'simple'}, :admin? => false,
+                       :text_filter_name => "", :profile_label => "admin",
+                       :profile_id => 2, :name => 'steve', :profile => Factory(:profile_publisher, :label => "publisher"))
+    article = Article.create!(:title => "blah blah", :author => 'john', :body => "")
+    article2 = Article.create!(:title => "blah blah", :author => 'steve', :body => '<p>Hey Yo<p>')
+    controller.stub!(:current_user).and_return(normalUser)
+    get 'merge', {:id => article.id, :merge_id => article2.id}
+    article = Article.find(article.id)
+    assert_not_equal(article2.body, article.body)
+    assert_equal(article2, Article.find_by_id(article2.id)) 
+  end
+
+####################HW5##############################
+
   # Like it's a shared, need call everywhere
   shared_examples_for 'index action' do
 

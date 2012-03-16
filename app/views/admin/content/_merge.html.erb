@@ -1,0 +1,10 @@
+<% if current_user.admin? and not params[:id].nil? -%>
+	<%= form_tag "/admin/content/merge/#{params[:id]}" do -%>
+		<div class=''>
+			<h4><%= _("Merge Articles") %></h4>
+			<p><%= _("Article ID") %></p>
+    		<%= text_field_tag 'merge_id', nil, {:autocomplete => 'off', :style => 'width: 54%'} %>
+    		<%= button_to "Merge", :action => 'merge' %>
+		</div>  
+	<% end -%>
+<% end -%>

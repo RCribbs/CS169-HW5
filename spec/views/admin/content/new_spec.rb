@@ -17,6 +17,17 @@ describe "admin/content/new.html.erb" do
     TextFilter.stub(:all) { [text_filter] }
 
     assign :article, article
+
+
+####################HW5##############################
+    @normalUser = stub_model(User, :settings => {:editor => 'simple'}, :admin? => false,
+                       :text_filter_name => "", :profile_label => "admin")
+
+    @adminUser = admin
+
+    params[:id] = 0
+####################HW5##############################
+
   end
 
   it "renders with no resources or macros" do
@@ -34,4 +45,27 @@ describe "admin/content/new.html.erb" do
     assign(:resources, [])
     render
   end
+
+####################HW5##############################
+  it "should show an admin a \"Merge With This Article\" button" do
+    assign(:images, [])
+    assign(:macros, [])
+    assign(:resources, [])
+
+    view.stub(:current_user) { @adminUser }
+    render
+    rendered.should have_selector('input', :value => 'Merge', :type => 'submit')
+  end
+
+  it "shouldn't show a non-admin a \"Merge With This Article\" button" do
+    assign(:images, [])
+    assign(:macros, [])
+    assign(:resources, [])
+
+    view.stub(:current_user) { @normalUser }
+    render
+    rendered.should_not have_selector('input', :value => 'Merge', :type => 'submit')
+  end
+####################HW5##############################
+
 end

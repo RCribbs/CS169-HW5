@@ -73,6 +73,17 @@ class Article < Content
     end
   end
 
+  def merge_with merge_id
+    other_article = Article.find(merge_id)
+    other_comments = other_article.comments
+    other_body = other_article.body
+    self.comments << other_comments
+    self.body += other_body
+    other_article.delete
+    self.save
+  end
+
+
   def has_child?
     Article.exists?({:parent_id => self.id})
   end
@@ -459,4 +470,5 @@ class Article < Content
     to = to - 1 # pull off 1 second so we don't overlap onto the next day
     return from..to
   end
+
 end
